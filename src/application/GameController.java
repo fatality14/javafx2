@@ -1,5 +1,6 @@
 package application;
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -11,6 +12,10 @@ public class GameController{
 	private Label ball = new Label();
 	private Label sliderL = new Label();
 	private Label sliderR = new Label();
+	private Label scoreLText = new Label();
+	private Label scoreRText = new Label();
+	int scoreL = 0;
+	int scoreR = 0;
 	
 	private boolean moveSliderLUp = false;
 	private boolean moveSliderRUp = false;
@@ -35,6 +40,14 @@ public class GameController{
 		ball.getStyleClass().add("ball");
 		sliderL.getStyleClass().add("sliderL");
 		sliderR.getStyleClass().add("sliderR");
+		scoreLText.getStyleClass().add("score");
+		scoreRText.getStyleClass().add("score");
+		
+		scoreLText.setLayoutX(data.getWindowWidth()/2-50);
+		scoreLText.setLayoutY(data.getWindowHeight()/2);
+		scoreRText.setLayoutX(data.getWindowWidth()/2+50);
+		scoreRText.setLayoutY(data.getWindowHeight()/2);
+		
 		
 		update();
 		sliderLPressedEvent = new SliderLKeyPressedEvent(this);
@@ -47,6 +60,8 @@ public class GameController{
 		parent.getChildren().add(ball);
 		parent.getChildren().add(sliderL);
 		parent.getChildren().add(sliderR);
+		parent.getChildren().add(scoreLText);
+		parent.getChildren().add(scoreRText);
 		
 		startBallThread();
 		startSliderLThread();
@@ -56,6 +71,7 @@ public class GameController{
 		updateBall();
 		updateSliderL();
 		updateSliderR();
+		updateScore();
 	}
 	public void updateBall() {
 		ball.setMinWidth(data.getBall().getSize().getX());
@@ -75,6 +91,10 @@ public class GameController{
 		sliderR.setLayoutY(data.getSliderR().getPosition().getLoc().getY());
 		sliderR.setLayoutX(data.getSliderR().getPosition().getLoc().getX() - data.getSliderL().getThickness());
 	}
+	public void updateScore() {
+		scoreLText.setText(scoreL+"");
+		scoreRText.setText(scoreR+"");
+	}
 	public void startBallThread() {
 		Runnable task = new Runnable() {
             public void run() {
@@ -87,14 +107,60 @@ public class GameController{
             		}
             		
             		if(data.getBall().getPosition().getLoc().getX() > data.getWindowWidth() - data.getBall().getSize().getY()) {
-            			data.getBall().getDir().setX(-data.getBall().getDir().getX());
+            			scoreL++;
+            			Platform.runLater(new Runnable(){
+            				public void run() {
+            					updateScore();
+            				}
+        				});
+            			
+            			
+            			data.getBall().getPosition().getLoc().setX(data.getWindowWidth()/2);
+            			data.getBall().getPosition().getLoc().setY(data.getWindowHeight()/2);
             		}
             		if(data.getBall().getPosition().getLoc().getX() < 0) {
+            			scoreR++;
+            			Platform.runLater(new Runnable(){
+            				public void run() {
+            					updateScore();
+            				}
+        				});
+            			
+            			data.getBall().getPosition().getLoc().setX(data.getWindowWidth()/2);
+            			data.getBall().getPosition().getLoc().setY(data.getWindowHeight()/2);
+            		}
+            		
+            		float distToLSlider = Float.MAX_VALUE;
+            		float distToRSlider = Float.MAX_VALUE;
+            		
+            		float sliderTop;
+            		float sliderBottom;
+            		float ballOffset;
+            		
+            		sliderTop = data.getSliderL().getPosition().getLoc().getY();
+            		sliderBottom = sliderTop + data.getSliderL().getWidth();
+            		ballOffset = data.getBall().getPosition().getLoc().getY();
+            		if(ballOffset > sliderTop && ballOffset < sliderBottom) {
+            			distToLSlider = data.getBall().getPosition().getLoc().getX() - data.getSliderL().getPosition().getLoc().getX();
+            		}
+            		
+            		sliderTop = data.getSliderR().getPosition().getLoc().getY();
+            		sliderBottom = sliderTop + data.getSliderR().getWidth();
+            		ballOffset = data.getBall().getPosition().getLoc().getY();
+            		if(ballOffset > sliderTop && ballOffset < sliderBottom) {
+            			distToRSlider = data.getSliderR().getPosition().getLoc().getX() - data.getBall().getPosition().getLoc().getX();
+            		}
+            		
+            		if(distToLSlider < 20 || distToRSlider < 40) {
             			data.getBall().getDir().setX(-data.getBall().getDir().getX());
             		}
             		
             		data.getBall().getPosition().getLoc().add(data.getBall().getDir());
-            		updateBall();
+            		Platform.runLater(new Runnable(){
+        				public void run() {
+        					updateBall();
+        				}
+    				});
                 	
                 	try {
 						Thread.sleep(5);
@@ -113,14 +179,28 @@ public class GameController{
                 while(true) {
                 	if(moveSliderL && moveSliderLUp) {
                 		float move = data.getSliderL().getPosition().getLoc().getY() - data.getSliderL().getMoveSpeed();
-            			data.getSliderL().getPosition().getLoc().setY(move);
+                		if(move >= 0) {
+                			data.getSliderL().getPosition().getLoc().setY(move);
+                		}
+                		else {
+                			data.getSliderL().getPosition().getLoc().setY(0);
+                		}
                 	}
                 	if (moveSliderL && !moveSliderLUp) {
                 		float move = data.getSliderL().getPosition().getLoc().getY() + data.getSliderL().getMoveSpeed();
-            			data.getSliderL().getPosition().getLoc().setY(move);
+                		if(move <= data.getWindowHeight() - data.getSliderL().getWidth()) {
+                			data.getSliderL().getPosition().getLoc().setY(move);
+                		}
+                		else {
+                			data.getSliderL().getPosition().getLoc().setY(data.getWindowHeight() - data.getSliderL().getWidth());
+                		}
                 	}
                 	
-                	updateSliderL();
+                	Platform.runLater(new Runnable(){
+        				public void run() {
+        					updateSliderL();
+        				}
+    				});
                 	
                 	try {
 						Thread.sleep(5);
@@ -139,14 +219,28 @@ public class GameController{
                 while(true) {
                 	if(moveSliderR && moveSliderRUp) {
                 		float move = data.getSliderR().getPosition().getLoc().getY() - data.getSliderR().getMoveSpeed();
-            			data.getSliderR().getPosition().getLoc().setY(move);
+                		if(move >= 0) {
+                			data.getSliderR().getPosition().getLoc().setY(move);
+                		}
+                		else {
+                			data.getSliderR().getPosition().getLoc().setY(0);
+                		}
                 	}
                 	if (moveSliderR && !moveSliderRUp) {
                 		float move = data.getSliderR().getPosition().getLoc().getY() + data.getSliderR().getMoveSpeed();
-            			data.getSliderR().getPosition().getLoc().setY(move);
+                		if(move <= data.getWindowHeight() - data.getSliderR().getWidth()) {
+                			data.getSliderR().getPosition().getLoc().setY(move);
+                		}
+                		else {
+                			data.getSliderR().getPosition().getLoc().setY(data.getWindowHeight() - data.getSliderR().getWidth());
+                		}
                 	}
                 	
-                	updateSliderR();
+                	Platform.runLater(new Runnable(){
+        				public void run() {
+        					updateSliderR();
+        				}
+    				});
                 	
                 	try {
 						Thread.sleep(5);

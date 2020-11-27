@@ -9,14 +9,16 @@
 	
 	-fx-border-radius: 50%;
 	-fx-background-radius: 50%;
-		
-	-fx-border-width: 5;
-	-fx-border-color: #280959;
+}
+.score{
+	-fx-text-fill: white;
+	-fx-font-size: 50px;
+	-fx-font-family: 'Sansita Swashed';
 }
 .sliderL{
 	-fx-background-color: white;
 }
 
 .sliderR{
-	-fx-background-color: yellow;
+	-fx-background-color: white;
 }
