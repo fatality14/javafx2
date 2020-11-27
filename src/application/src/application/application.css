@@ -1,0 +1,33 @@
+.root{
+	-fx-min-width: 800px;
+	-fx-min-height: 600px;
+	-fx-background-color: #eb4034;
+}
+
+.ball{	
+	-fx-background-color: #303030;
+	
+	-fx-border-radius: 50%;
+	-fx-background-radius: 50%;
+}
+.score{
+	-fx-text-fill: white;
+	-fx-font-size: 50px;
+	-fx-font-family: 'Sansita Swashed';
+}
+.sliderL{
+	-fx-background-color: white;
+}
+
+.sliderR{
+	-fx-background-color: white;
+}
+.reset{
+	-fx-text-fill: white;
+	-fx-font-family: 'Sansita Swashed';
+	
+	-fx-background-color: black;
+	-fx-border-width: 1;
+	-fx-border-color: black;
+	-fx-border-radius: 50px;
+}
