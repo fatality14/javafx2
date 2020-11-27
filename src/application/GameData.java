@@ -6,6 +6,8 @@ public class GameData {
 	private Slider sliderR;
 	private float windowWidth;
 	private float windowHeight;
+	private int scoreL = 0;
+	private int scoreR = 0;
 
 	public GameData(Ball ball, Slider sliderL, Slider sliderR, float windowWidth, float windowHeight) {
 		super();
@@ -45,5 +47,17 @@ public class GameData {
 	}
 	public void setWindowHeight(float windowHeight) {
 		this.windowHeight = windowHeight;
+	}
+	public int getScoreL() {
+		return scoreL;
+	}
+	public void setScoreL(int scoreL) {
+		this.scoreL = scoreL;
+	}
+	public int getScoreR() {
+		return scoreR;
+	}
+	public void setScoreR(int scoreR) {
+		this.scoreR = scoreR;
 	}
 }

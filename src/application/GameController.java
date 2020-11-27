@@ -1,6 +1,7 @@
 package application;
 
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -14,8 +15,7 @@ public class GameController{
 	private Label sliderR = new Label();
 	private Label scoreLText = new Label();
 	private Label scoreRText = new Label();
-	int scoreL = 0;
-	int scoreR = 0;
+	private Button resetBtn = new Button();
 	
 	private boolean moveSliderLUp = false;
 	private boolean moveSliderRUp = false;
@@ -31,6 +31,7 @@ public class GameController{
 	SliderRKeyPressedEvent sliderRPressedEvent;
 	SliderLKeyReleasedEvent sliderLReleasedEvent;
 	SliderRKeyReleasedEvent sliderRReleasedEvent;
+	ButtonResetGameEvent resetScoreEvent;
 	
 	GameController(Pane parent, GameData data){
 		super();
@@ -42,18 +43,22 @@ public class GameController{
 		sliderR.getStyleClass().add("sliderR");
 		scoreLText.getStyleClass().add("score");
 		scoreRText.getStyleClass().add("score");
+		resetBtn.getStyleClass().add("reset");
 		
 		scoreLText.setLayoutX(data.getWindowWidth()/2-50);
 		scoreLText.setLayoutY(data.getWindowHeight()/2);
 		scoreRText.setLayoutX(data.getWindowWidth()/2+50);
 		scoreRText.setLayoutY(data.getWindowHeight()/2);
 		
+		resetBtn.setText("Restart game.");
+		resetBtn.setLayoutX(data.getWindowWidth()/2 - 35);
 		
 		update();
 		sliderLPressedEvent = new SliderLKeyPressedEvent(this);
 		sliderRPressedEvent = new SliderRKeyPressedEvent(this);
 		sliderLReleasedEvent = new SliderLKeyReleasedEvent(this);
 		sliderRReleasedEvent = new SliderRKeyReleasedEvent(this);
+		resetScoreEvent = new ButtonResetGameEvent(this);
 	}
 	
 	public void embed() {		
@@ -62,6 +67,9 @@ public class GameController{
 		parent.getChildren().add(sliderR);
 		parent.getChildren().add(scoreLText);
 		parent.getChildren().add(scoreRText);
+		parent.getChildren().add(resetBtn);
+		
+		resetBtn.setOnMouseClicked(resetScoreEvent);
 		
 		startBallThread();
 		startSliderLThread();
@@ -92,13 +100,13 @@ public class GameController{
 		sliderR.setLayoutX(data.getSliderR().getPosition().getLoc().getX() - data.getSliderL().getThickness());
 	}
 	public void updateScore() {
-		scoreLText.setText(scoreL+"");
-		scoreRText.setText(scoreR+"");
+		scoreLText.setText(data.getScoreL()+"");
+		scoreRText.setText(data.getScoreR()+"");
 	}
 	public void startBallThread() {
 		Runnable task = new Runnable() {
             public void run() {
-                while(true) {
+                while(!Main.closeWindow) {
                 	if(data.getBall().getPosition().getLoc().getY() > data.getWindowHeight() - data.getBall().getSize().getX()) {
                 		data.getBall().getDir().setY(-data.getBall().getDir().getY());
             		}
@@ -107,7 +115,7 @@ public class GameController{
             		}
             		
             		if(data.getBall().getPosition().getLoc().getX() > data.getWindowWidth() - data.getBall().getSize().getY()) {
-            			scoreL++;
+            			data.setScoreL(data.getScoreL()+1);
             			Platform.runLater(new Runnable(){
             				public void run() {
             					updateScore();
@@ -119,7 +127,7 @@ public class GameController{
             			data.getBall().getPosition().getLoc().setY(data.getWindowHeight()/2);
             		}
             		if(data.getBall().getPosition().getLoc().getX() < 0) {
-            			scoreR++;
+            			data.setScoreR(data.getScoreR()+1);
             			Platform.runLater(new Runnable(){
             				public void run() {
             					updateScore();
@@ -176,7 +184,7 @@ public class GameController{
 	public void startSliderLThread() {
 		Runnable task = new Runnable() {
             public void run() {
-                while(true) {
+                while(!Main.closeWindow) {
                 	if(moveSliderL && moveSliderLUp) {
                 		float move = data.getSliderL().getPosition().getLoc().getY() - data.getSliderL().getMoveSpeed();
                 		if(move >= 0) {
@@ -216,7 +224,7 @@ public class GameController{
 	public void startSliderRThread() {
 		Runnable task = new Runnable() {
             public void run() {
-                while(true) {
+                while(!Main.closeWindow) {
                 	if(moveSliderR && moveSliderRUp) {
                 		float move = data.getSliderR().getPosition().getLoc().getY() - data.getSliderR().getMoveSpeed();
                 		if(move >= 0) {

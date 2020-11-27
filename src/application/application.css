@@ -22,3 +22,12 @@
 .sliderR{
 	-fx-background-color: white;
 }
+.reset{
+	-fx-text-fill: white;
+	-fx-font-family: 'Sansita Swashed';
+	
+	-fx-background-color: black;
+	-fx-border-width: 1;
+	-fx-border-color: black;
+	-fx-border-radius: 50px;
+}
